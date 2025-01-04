@@ -5,7 +5,7 @@ import NewDocumentButton from "./NewDocumentButton"
 import { useCollection } from "react-firebase-hooks/firestore"
 import { query, where, collection, DocumentData } from "firebase/firestore";
 import { useUser } from "@clerk/nextjs"
-import db from '@/firebase';
+import {db} from '@/firebase';
 
 import {
     Sheet,
