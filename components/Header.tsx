@@ -1,6 +1,7 @@
 "use client";
 
 import { SignedOut, SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import Breadcrumbs from "./Breadcrumbs";
 
 const Header = () => {
 
@@ -13,9 +14,8 @@ const Header = () => {
           Hi, {user?.firstName}
         </h1>
       )}
+        <Breadcrumbs />
       <div>
-
-        {/* Breadcumbs */}
 
         <SignedOut>
           <SignInButton />

@@ -3,9 +3,11 @@
 import { MenuIcon } from "lucide-react"
 import NewDocumentButton from "./NewDocumentButton"
 import { useCollection } from "react-firebase-hooks/firestore"
-import { query, where, collection, DocumentData } from "firebase/firestore";
+import { query, where, collection, DocumentData, collectionGroup } from "firebase/firestore";
 import { useUser } from "@clerk/nextjs"
 import {db} from '@/firebase';
+import { useEffect, useState } from "react";
+import { Root } from "postcss";
 
 import {
     Sheet,
@@ -15,8 +17,7 @@ import {
     SheetTitle,
     SheetTrigger,
   } from "@/components/ui/sheet"
-import { useEffect, useState } from "react";
-import { Root } from "postcss";
+import SidebarOptions from "./SidebarOptions";
   
   interface RoomDocument extends DocumentData {
     createdAt: string;
@@ -26,7 +27,9 @@ import { Root } from "postcss";
   }
 
 function Sidebar() {
+
 const {user} = useUser();
+
 const [groupedData, setGroupData] = useState<{
     owner: RoomDocument[];
     editor: RoomDocument[];
@@ -35,10 +38,9 @@ const [groupedData, setGroupData] = useState<{
     editor: [],
 });
 
-
 const [data, loading, error ] = useCollection(
     user && (
-        query(collection(db, "rooms"), 
+        query(collectionGroup(db, "rooms"), 
         where("userId", "==", user.emailAddresses[0].toString()))
     )
 );
@@ -68,16 +70,6 @@ const [data, loading, error ] = useCollection(
     setGroupData(grouped);
     }, [data]);
 
-//   if (loading) {
-//     return <div>Loading...</div>; 
-//   }
-
-//   if (error) {
-//     return <div>Error: {error.message}</div>;
-//   }
-
-  console.log(groupedData);
-
     const menuOptions = (
         <>
             <NewDocumentButton />
@@ -95,12 +87,28 @@ const [data, loading, error ] = useCollection(
                         My Documents
                     </h2>
                     {groupedData.owner.map((doc) => (
-                        <p key={doc.id}>{doc.roomId}</p>
+                         <SidebarOptions key={doc.id} id={doc.id} href={`/doc/${doc.id}`} />
                     ))}
-                </>)}
+                </>
+                )}
             </div>
-        </>
-    );
+
+            {/* Shared with me */}
+
+            {groupedData.editor.length > 0 && (
+              <>
+                    <h2 className="text-gray-500 font-semibold text-sm ">
+                        Shared with me 
+                    </h2>
+              {groupedData.editor.map((doc) => (
+                      <SidebarOptions key={doc.id} id={doc.id} href={`/doc/${doc.id}
+                      `} />
+                ))}  
+            </>
+            )}
+        {/* List */}
+        </>  
+  );
 
   return (
     <div className="p-2 md:p-5 relative bg-gray-200">
@@ -115,8 +123,8 @@ const [data, loading, error ] = useCollection(
                     {menuOptions}
                 </SheetHeader>
             </SheetContent>
-            </Sheet>
-            </div>    
+          </Sheet>
+        </div>    
         
         <div className="hidden md:inline">
             {menuOptions}
